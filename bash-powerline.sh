@@ -89,6 +89,18 @@ __powerline() {
         printf " $GIT_BRANCH_SYMBOL$branch$marks "
     }
 
+    __virtualenv() {
+        if [ "x$VIRTUAL_ENV" != "x" ]; then
+            if [ "`basename \"$VIRTUAL_ENV\"`" == "__" ]; then
+                # special case for Aspen magic directories
+                # see http://www.zetadev.com/software/aspen/
+                printf "[`basename \`dirname \"$VIRTUAL_ENV\"\``]"
+            else
+                printf "(`basename \"$VIRTUAL_ENV\"`)"
+            fi
+        fi
+    }
+
     ps1() {
         # Check the exit code of the previous command and display different
         # colors in the prompt accordingly. 
@@ -98,7 +110,7 @@ __powerline() {
             local BG_EXIT="$BG_RED"
         fi
 
-        PS1="$BG_BASE1$FG_BASE3 \w $RESET"
+        PS1="$BG_CYAN$FG_BASE3$(__virtualenv)$BG_BASE1 \w $RESET"
         PS1+="$BG_BLUE$FG_BASE3$(__git_info)$RESET"
         PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $RESET "
     }
