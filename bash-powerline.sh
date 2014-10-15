@@ -113,7 +113,7 @@ __powerline() {
             if [[ $pwd = ~* ]]; then
                 pwd="~/.../${split[-1]}"
             else
-                pwd="/${split[0]}/.../${split[-1]}"
+                pwd="/${split[1]}/.../${split[-1]}"
             fi
         fi
         printf "$pwd"
