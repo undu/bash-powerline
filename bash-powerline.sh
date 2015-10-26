@@ -93,6 +93,9 @@ __powerline() {
     }
 
     __virtualenv() {
+        # Copied from Python virtualenv's activate.sh script.
+        # https://github.com/pypa/virtualenv/blob/a9b4e673559a5beb24bac1a8fb81446dd84ec6ed/virtualenv_embedded/activate.sh#L62
+        # License: MIT
         if [ "x$VIRTUAL_ENV" != "x" ]; then
             if [ "`basename \"$VIRTUAL_ENV\"`" == "__" ]; then
                 # special case for Aspen magic directories
@@ -128,7 +131,9 @@ __powerline() {
             local BG_EXIT="$BG_RED"
         fi
 
-        PS1="$BG_CYAN$FG_BASE3$(__virtualenv)$BG_BASE1 $(__pwd) $RESET"
+        PS1=""
+        PS1+="$BG_BASE0$FG_BASE3$(__virtualenv)$RESET"
+        PS1+="$BG_BASE1$FG_BASE3 $(__pwd) $RESET"
         PS1+="$BG_BLUE$FG_BASE3$(__git_info)$RESET"
         PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $RESET "
     }
