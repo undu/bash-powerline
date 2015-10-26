@@ -17,7 +17,6 @@ Powerline for Bash in pure Bash script.
 * Color code for the previously failed command
 * Fast execution (no noticable delay)
 * No need for patched fonts
-* Python virtualenv: display current virtual environment (newly added)
 * Shortened path if current working path is too deep and too long (newly added)
 
 
