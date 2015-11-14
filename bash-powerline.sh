@@ -110,7 +110,7 @@ __powerline() {
     __pwd() {
         # Use ~ to represent $HOME prefix
         local pwd=$(pwd | sed -e "s|^$HOME|~|")
-        if [[ ( $pwd = ~\/*\/* || $pwd = \/*\/*/* ) && ${#pwd} > $MAX_PATH_LENGTH ]]; then
+        if [[ ( $pwd = ~\/*\/* || $pwd = \/*\/*/* ) && ${#pwd} -gt $MAX_PATH_LENGTH ]]; then
             local IFS='/'
             read -ra split <<< "$pwd"
             if [[ $pwd = ~* ]]; then
