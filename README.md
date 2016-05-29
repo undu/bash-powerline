@@ -2,6 +2,9 @@
 
 Powerline for Bash in pure Bash script.
 
+![bash-powerline](http://raw.github.com/traviskn/bash-powerline/master/screenshots/default.png)
+![bash-powerline](http://raw.github.com/traviskn/bash-powerline/master/screenshots/patched.png)
+
 ## Features
 
 * Git branch: display current git branch name, or short SHA1 hash when the head
@@ -28,7 +31,7 @@ And source it in your `.bashrc`
 
     source ~/.bash-powerline.sh
 
-For best result, use [Base16
+For best results, use [Base16
 colorscheme](http://chriskempson.github.io/base16/) with your terminal
 emulator. Or hack your own colorscheme by modifying the script. It's really
 easy.
@@ -40,10 +43,9 @@ Note: This script uses features available only in bash versions 4.2 or greater.
 This script is largely inspired by
 [powerline-shell](https://github.com/milkbikis/powerline-shell). The biggest
 problem is that it is implemented in Python. Python scripts are much easier to
-write and maintain than Bash scripts, but for my simple cases I find Bash
-scripts to be manageable. However, invoking the Python interpreter each time to
-draw the shell prompt introduces a noticable delay. I hate delays. So I decided
-to port just the functionalities I need to pure Bash script instead.
+write and maintain than Bash scripts, however, invoking the Python interpreter
+each time to draw the shell prompt introduces a noticable delay. I hate delays.
+So I decided to port just the functionalities I need to pure Bash script instead.
 
 ## See also
 * [powerline](https://github.com/Lokaltog/powerline): Unified Powerline
