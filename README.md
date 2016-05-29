@@ -1,9 +1,6 @@
 # bash-powerline
 
-Powerline for Bash in pure Bash script. 
-
-![bash-powerline](https://raw.github.com/riobard/bash-powerline/master/screenshots/solarized-light-source-code-pro.png)
-![bash-powerline](https://raw.github.com/riobard/bash-powerline/master/screenshots/solarized-dark-monaco.png)
+Powerline for Bash in pure Bash script.
 
 ## Features
 
@@ -16,8 +13,9 @@ Powerline for Bash in pure Bash script.
 * Platform-dependent prompt symbol for OS X and Linux (see screenshots)
 * Color code for the previously failed command
 * Fast execution (no noticable delay)
-* No need for patched fonts
-* Shortened path if current working path is too deep and too long (newly added)
+* Default settings do not require patched fonts
+* Optional support for powerline patched fonts (export USE_POWERLINE_FONTS=true in .bashrc)
+* Shortened path if current working path is too deep and too long
 
 
 ## Installation
@@ -30,11 +28,12 @@ And source it in your `.bashrc`
 
     source ~/.bash-powerline.sh
 
-For best result, use [Solarized
-colorscheme](https://github.com/altercation/solarized) for your terminal
+For best result, use [Base16
+colorscheme](http://chriskempson.github.io/base16/) with your terminal
 emulator. Or hack your own colorscheme by modifying the script. It's really
 easy.
 
+Note: This script uses features available only in bash versions 4.2 or greater.
 
 ## Why?
 
@@ -44,13 +43,7 @@ problem is that it is implemented in Python. Python scripts are much easier to
 write and maintain than Bash scripts, but for my simple cases I find Bash
 scripts to be manageable. However, invoking the Python interpreter each time to
 draw the shell prompt introduces a noticable delay. I hate delays. So I decided
-to port just the functionalities I need to pure Bash script instead. 
-
-The other issue is that I don't like the idea of requiring patched fonts for
-this to work. The font patching mechanism from the original Powerline does not
-work with the bitmap font (Apple Monaco without anti-aliasing) I use on
-non-retina screens. I'd rather stick with existing unicode symbols in the fonts.
-
+to port just the functionalities I need to pure Bash script instead.
 
 ## See also
 * [powerline](https://github.com/Lokaltog/powerline): Unified Powerline
@@ -61,6 +54,6 @@ non-retina screens. I'd rather stick with existing unicode symbols in the fonts.
   written in Bash script. Deprecated.
 * [powerline-shell](https://github.com/milkbikis/powerline-shell): Powerline for
   Bash/Zsh/Fish implemented in Python. Might be merged into the unified
-  Powerline. 
+  Powerline.
 * [emacs powerline](https://github.com/milkypostman/powerline): Powerline for
   Emacs
