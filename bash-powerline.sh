@@ -162,13 +162,9 @@ __powerline() {
 
         PS1=""
 
-        PS1+="$BG_BLUE$FG_WHITE_BRIGHT $(whoami) $RESET"
+        PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT $(whoami) $RESET"
 
         PS1+="$BG_BLUE$FG_WHITE_BRIGHT$(__virtualenv)$RESET"
-
-        #if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
-        #  PS1+="$BG_BLACK_BRIGHT$FG_BLUE$RIGHT_SOLID_ARROW_POWERLINE$RESET"
-        #fi
 
         PS1+="$BG_YELLOW_BRIGHT$FG_WHITE_BRIGHT$(__git_info)$RESET"
 
