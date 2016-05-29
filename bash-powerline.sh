@@ -79,7 +79,9 @@ __powerline() {
     esac
 
     __black_blue_divider() {
-      printf "$BG_BLACK_BRIGHT$FG_BLUE$RIGHT_SOLID_ARROW_POWERLINE$RESET"
+      if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
+        printf "$BG_BLACK_BRIGHT$FG_BLUE$RIGHT_SOLID_ARROW_POWERLINE$RESET"
+      fi
     }
 
     __git_info() {
