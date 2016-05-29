@@ -17,7 +17,7 @@ Powerline for Bash in pure Bash script.
 * Color code for the previously failed command
 * Fast execution (no noticable delay)
 * Default settings do not require patched fonts
-* Optional support for powerline patched fonts (export USE_POWERLINE_FONTS=true in .bashrc)
+* Optional support for powerline patched fonts (export USE_POWERLINE_FONTS=1 in .bashrc)
 * Shortened path if current working path is too deep and too long
 
 
@@ -25,7 +25,7 @@ Powerline for Bash in pure Bash script.
 
 Download the Bash script
 
-    curl https://raw.githubusercontent.com/riobard/bash-powerline/master/bash-powerline.sh > ~/.bash-powerline.sh
+    curl https://raw.githubusercontent.com/traviskn/bash-powerline/master/bash-powerline.sh > ~/.bash-powerline.sh
 
 And source it in your `.bashrc`
 
