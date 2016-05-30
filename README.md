@@ -17,7 +17,8 @@ Powerline for Bash in pure Bash script.
 * Color code for the previously failed command
 * Fast execution (no noticable delay)
 * Default settings do not require patched fonts
-* Optional support for powerline patched fonts (export USE_POWERLINE_FONTS=1 in .bashrc)
+* Optional support for powerline [patched fonts](https://github.com/powerline/fonts)
+  (export USE_POWERLINE_FONTS=1 in .bashrc to enable patched fonts)
 * Shortened path if current working path is too deep and too long
 
 
@@ -50,12 +51,9 @@ So I decided to port just the functionalities I need to pure Bash script instead
 ## See also
 * [powerline](https://github.com/Lokaltog/powerline): Unified Powerline
   written in Python. This is the future of all Powerline derivatives. 
-* [vim-powerline](https://github.com/Lokaltog/vim-powerline): Powerline in Vim
-  writtien in pure Vimscript. Deprecated.
+* [vim-airline](https://github.com/vim-airline/vim-airline): Powerline-style status line
+  for Vim written in pure Vimscript.
 * [tmux-powerline](https://github.com/erikw/tmux-powerline): Powerline for Tmux
   written in Bash script. Deprecated.
-* [powerline-shell](https://github.com/milkbikis/powerline-shell): Powerline for
-  Bash/Zsh/Fish implemented in Python. Might be merged into the unified
-  Powerline.
 * [emacs powerline](https://github.com/milkypostman/powerline): Powerline for
   Emacs
