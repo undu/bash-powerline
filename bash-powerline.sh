@@ -156,14 +156,18 @@ __powerline() {
         printf "$pwd"
     }
 
+
     ps1() {
         # Check the exit code of the previous command and display different
         # colors in the prompt accordingly.
-        if [ $? -eq 0 ]; then
+        local EXIT_CODE=$?
+
+        if [ $EXIT_CODE -eq 0 ]; then
             local BG_EXIT="$BG_BLUE_BRIGHT"
         else
             local BG_EXIT="$BG_RED"
         fi
+
 
         PS1=""
 
@@ -178,7 +182,7 @@ __powerline() {
         if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
           PS1+="$FG_BLACK_BRIGHT$RIGHT_SOLID_ARROW_POWERLINE$RESET "
         else
-          PS1+="$BG_EXIT$FG_YELLOW_BRIGHT $PS_SYMBOL $RESET "
+          PS1+="$BG_EXIT$FG_MAGENTA_BRIGHT $EXIT_CODE $PS_SYMBOL $RESET "
         fi
     }
 
