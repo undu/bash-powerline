@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 __powerline() {
-
     # Max length of full path
     readonly MAX_PATH_LENGTH=30
 
@@ -91,7 +90,8 @@ __powerline() {
           return
         fi
 
-        local git_eng="env LANG=C git"   # force git output in English to make our work easier
+        # force git output in English to make our work easier
+        local git_eng="env LANG=C git"
         # get current branch name or short SHA1 hash for detached head
         local branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
 
