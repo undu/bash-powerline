@@ -19,6 +19,7 @@ Powerline for Bash in pure Bash script.
 * Optional support for powerline [patched fonts](https://github.com/powerline/fonts)
   (export USE_POWERLINE_FONTS=1 in .bashrc to enable patched fonts)
 * Shortened path if current working path is too deep and too long
+* Exit code shown after path and before prompt symbol
 
 ## Installation
 
