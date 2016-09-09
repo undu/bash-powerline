@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 __powerline() {
     # Max length of full path
     readonly MAX_PATH_LENGTH=30
@@ -66,16 +65,20 @@ __powerline() {
     readonly BOLD="\[$(tput bold)\]"
 
     # Which OS?
-    case "$(uname)" in
-        Darwin)
-            readonly PS_SYMBOL=$PS_SYMBOL_DARWIN
-            ;;
-        Linux)
-            readonly PS_SYMBOL=$PS_SYMBOL_LINUX
-            ;;
-        *)
-            readonly PS_SYMBOL=$PS_SYMBOL_OTHER
-    esac
+    #case "$(uname)" in
+    #    Darwin)
+    #        readonly PS_SYMBOL=$PS_SYMBOL_DARWIN
+    #        ;;
+    #    Linux)
+    #        readonly PS_SYMBOL=$PS_SYMBOL_LINUX
+    #        ;;
+    #    *)
+    #        readonly PS_SYMBOL=$PS_SYMBOL_OTHER
+    #esac
+
+    # I like to just use the $ symbol, leaving the case above
+    # For future ues
+    readonly PS_SYMBOL=$PS_SYMBOL_LINUX
 
     __black_blue_divider() {
       if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
@@ -145,9 +148,9 @@ __powerline() {
             local IFS='/'
             read -ra split <<< "$pwd"
             if [[ $pwd = ~* ]]; then
-                pwd="~/.../${split[-1]}"
+                pwd="~/.../${split[@]:(-1)}"
             else
-                pwd="/${split[1]}/.../${split[-1]}"
+                pwd="/${split[1]}/.../${split[@]:(-1)}"
             fi
         fi
         printf "$pwd"
