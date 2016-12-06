@@ -148,19 +148,24 @@ __powerline() {
             local IFS='/'
             read -ra split <<< "$pwd"
             if [[ $pwd = ~* ]]; then
-                pwd="~/.../${split[@]:(-1)}"
+                pwd="~/${split[1]}/.../${split[@]:(-2):1}/${split[@]:(-1)}"
             else
-                pwd="/${split[1]}/.../${split[@]:(-1)}"
+                pwd="/${split[1]}/.../${split[@]:(-2):1}/${split[@]:(-1)}"
             fi
         fi
         printf "$pwd"
     }
 
+    __prompt_command() {
+        local JOBS=$(jobs | wc -l | tr -d " ")
+        printf "%s" "$JOBS"
+    }
 
     ps1() {
         # Check the exit code of the previous command and display different
         # colors in the prompt accordingly.
         local EXIT_CODE=$?
+        $(history -a ; history -n)
 
         if [ $EXIT_CODE -eq 0 ]; then
             local BG_EXIT="$BG_BLUE_BRIGHT"
@@ -168,8 +173,7 @@ __powerline() {
             local BG_EXIT="$BG_RED"
         fi
 
-
-        PS1=""
+        PS1="\n"
 
         PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT $(whoami) $RESET"
 
@@ -179,11 +183,17 @@ __powerline() {
 
         PS1+="$BG_BLACK_BRIGHT$FG_WHITE_BRIGHT $(__pwd) $RESET"
 
+        JOBS=$(__prompt_command)
+        if [ "$JOBS" -gt "0" ]; then
+            PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT[${JOBS}-BG]$RESET"
+        fi
+
         if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
           PS1+="$FG_BLACK_BRIGHT$RIGHT_SOLID_ARROW_POWERLINE$RESET "
         else
-          PS1+="$BG_EXIT$FG_MAGENTA_BRIGHT $EXIT_CODE $PS_SYMBOL $RESET "
+          PS1+="$BG_EXIT$FG_MAGENTA_BRIGHT $EXIT_CODE $PS_SYMBOL $RESET"
         fi
+
     }
 
     PROMPT_COMMAND=ps1
