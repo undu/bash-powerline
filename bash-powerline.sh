@@ -4,20 +4,10 @@ __powerline() {
     readonly MAX_PATH_LENGTH=30
 
     # Unicode symbols
-    readonly PS_SYMBOL_DARWIN=''
-    readonly PS_SYMBOL_LINUX='$'
-    readonly PS_SYMBOL_OTHER='%'
-    readonly GIT_BRANCH_SYMBOL='⑂ '
-    readonly GIT_BRANCH_CHANGED_SYMBOL='+'
-    readonly GIT_NEED_PUSH_SYMBOL='⇡'
-    readonly GIT_NEED_PULL_SYMBOL='⇣'
-
-    # Powerline symbols
-    readonly GIT_BRANCH_SYMBOL_POWERLINE=' '
-    readonly RIGHT_SOLID_ARROW_POWERLINE=''
-    readonly LEFT_SOLID_ARROW_POWERLINE=''
-    readonly RIGHT_ARROW_POWERLINE=''
-    readonly LEFT_ARROW_POWERLINE=''
+    readonly GIT_BRANCH_SYMBOL=' '
+    readonly GIT_BRANCH_CHANGED_SYMBOL='Δ'
+    readonly GIT_NEED_PUSH_SYMBOL='↑'
+    readonly GIT_NEED_PULL_SYMBOL='↓'
 
     # ANSI Colors
     # Background
@@ -64,45 +54,11 @@ __powerline() {
     readonly RESET="\[$(tput sgr0)\]"
     readonly BOLD="\[$(tput bold)\]"
 
-    # Which OS?
-    #case "$(uname)" in
-    #    Darwin)
-    #        readonly PS_SYMBOL=$PS_SYMBOL_DARWIN
-    #        ;;
-    #    Linux)
-    #        readonly PS_SYMBOL=$PS_SYMBOL_LINUX
-    #        ;;
-    #    *)
-    #        readonly PS_SYMBOL=$PS_SYMBOL_OTHER
-    #esac
-
-    # I like to just use the $ symbol, leaving the case above
-    # For future ues
-    readonly PS_SYMBOL=$PS_SYMBOL_LINUX
-
-    __black_blue_divider() {
-      if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
-        printf "$BG_BLACK_BRIGHT$FG_BLUE$RIGHT_SOLID_ARROW_POWERLINE$RESET"
-      fi
-    }
-
     __git_info() {
-        if [ "x$(which git)" == "x" ]; then
-          # git not found
-          __black_blue_divider
-          return
-        fi
-
         # force git output in English to make our work easier
         local git_eng="env LANG=C git"
         # get current branch name or short SHA1 hash for detached head
         local branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
-
-        if [  "x$branch" == "x" ]; then
-          # git branch not found
-          __black_blue_divider
-          return
-        fi
 
         local marks
 
@@ -117,12 +73,10 @@ __powerline() {
         [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
         # print the git branch segment without a trailing newline
-        if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
-          printf "$BG_YELLOW_BRIGHT$FG_BLUE$RIGHT_SOLID_ARROW_POWERLINE$RESET"
-          printf "$BG_YELLOW_BRIGHT$FG_WHITE_BRIGHT $GIT_BRANCH_SYMBOL_POWERLINE$branch$marks $RESET"
-          printf "$BG_BLACK_BRIGHT$FG_YELLOW_BRIGHT$RIGHT_SOLID_ARROW_POWERLINE$RESET"
+        if [ "x$marks" = "x" ]; then
+            printf "$BG_GREEN$FG_BLACK $GIT_BRANCH_SYMBOL$branch$marks "
         else
-          printf " $GIT_BRANCH_SYMBOL$branch$marks "
+            printf "$BG_YELLOW$FG_BLACK $GIT_BRANCH_SYMBOL$branch$marks "
         fi
     }
 
@@ -175,25 +129,31 @@ __powerline() {
 
         PS1="\n"
 
-        PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT $(whoami) $RESET"
+        # Show username only if root or in remote
+        local USERCOL="$BG_BLUE"
 
-        PS1+="$BG_BLUE$FG_WHITE_BRIGHT$(__virtualenv)$RESET"
+        if [ $(whoami) = "root" ]; then
+          local USERCOL="$BG_RED"
+          local show_user="y"
+        fi
+        if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+          local show_user="y"
+        fi
 
-        PS1+="$BG_YELLOW_BRIGHT$FG_WHITE_BRIGHT$(__git_info)$RESET"
+        if [ "x$show_user" != "x" ]; then
+          PS1+="$USERCOL$BOLD$FG_WHITE_BRIGHT $(whoami) $RESET"
+        fi
 
         PS1+="$BG_BLACK_BRIGHT$FG_WHITE_BRIGHT $(__pwd) $RESET"
 
+        PS1+="$BG_BLUE$FG_WHITE_BRIGHT$(__virtualenv)$RESET"
+
+        PS1+="$(__git_info)$RESET "
+
         JOBS=$(__prompt_command)
         if [ "$JOBS" -gt "0" ]; then
-            PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT[${JOBS}-BG]$RESET"
+            PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT[${JOBS}-BG]$RESET "
         fi
-
-        if [ "x$USE_POWERLINE_FONTS" != "x" ]; then
-          PS1+="$FG_BLACK_BRIGHT$RIGHT_SOLID_ARROW_POWERLINE$RESET "
-        else
-          PS1+="$BG_EXIT$FG_MAGENTA_BRIGHT $EXIT_CODE $PS_SYMBOL $RESET"
-        fi
-
     }
 
     PROMPT_COMMAND=ps1
