@@ -55,10 +55,19 @@ __powerline() {
     readonly BOLD="\[$(tput bold)\]"
 
     __git_info() {
+        if [ "x$(which git)" == "x" ]; then
+          # git not found
+          return
+        fi
         # force git output in English to make our work easier
         local git_eng="env LANG=C git"
         # get current branch name or short SHA1 hash for detached head
         local branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
+
+        if [ "x$branch" == "x" ]; then
+          # git branch not found
+          return
+        fi
 
         local marks
 
