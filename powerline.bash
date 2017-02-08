@@ -3,11 +3,18 @@ __powerline() {
   # Max length of full path
   readonly MAX_PATH_LENGTH=30
 
+  # Default background and foreground ANSI colours
+  readonly DEFAULT_BG=0
+  readonly DEFAULT_FG=7
+
   # Unicode symbols
   readonly GIT_BRANCH_SYMBOL='∓'
   readonly GIT_BRANCH_CHANGED_SYMBOL='Δ'
   readonly GIT_NEED_PUSH_SYMBOL='↑'
   readonly GIT_NEED_PULL_SYMBOL='↓'
+
+  # Powerline symbols
+  readonly BLOCK_START=''
 
   # ANSI Colours
   readonly BLACK=0
@@ -36,7 +43,7 @@ __powerline() {
 
   # Generate terminal colour codes
   # $1 is an int (a colour) and $2 must be 'fg' or 'bg'
-  __get_colour() {
+  __colour() {
     case ${2} in
       'fg'*)
         echo "\[$(tput setaf ${1})\]"
@@ -49,6 +56,48 @@ __powerline() {
         ;;
     esac
   }
+
+  # Generate a single-coloured block for the prompt
+  __prompt_block() {
+    if [ ! -z ${1+x} ]; then
+      local bg=$1
+    else
+      if [ ! -z ${BG} ]; then
+        local bg=$BG
+      else
+        local bg=$DEFAULT_BG
+      fi
+    fi
+    if [ ! -z ${2+x} ]; then
+      local fg=$2
+    else
+      local fg=$DEFAULT_FG
+    fi
+
+    local block
+
+    # Need to generate a separator if the background changes
+    if [[ ! -z $BG && $bg != $BG && ! -z ${POWERLINE_FONT+x} ]]; then
+      block+="$(__colour $bg 'bg')"
+      block+="$(__colour $BG 'fg')"
+      block+="$BLOCK_START $RESET"
+      block+="$(__colour $bg 'bg')"
+      block+="$(__colour $fg 'fg')"
+    else
+      block+="$(__colour $bg 'bg')"
+      block+="$(__colour $fg 'fg')"
+      block+=" "
+    fi
+
+    if [ ! -z ${3+x} ]; then
+      block+="${3} $RESET"
+    fi
+
+    BG=$bg
+    echo $block
+  }
+
+  ### Prompt components
 
   __git_info() {
     if [ "x$(which git)" == "x" ]; then
@@ -77,12 +126,12 @@ __powerline() {
     [ -n "$aheadN" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
     [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
-    if [ "x$marks" = "x" ]; then
-      local bg=$(__get_colour $GREEN 'bg')
-      local fg=$(__get_colour $BLACK 'fg')
+    if [ -z "$marks" ]; then
+      local bg=$(__colour $GREEN 'bg')
+      local fg=$(__colour $BLACK 'fg')
     else
-      local bg=$(__get_colour $YELLOW 'bg')
-      local fg=$(__get_colour $BLACK 'fg')
+      local bg=$(__colour $YELLOW 'bg')
+      local fg=$(__colour $BLACK 'fg')
     fi
 
     # print the git branch segment without a trailing newline
@@ -93,7 +142,7 @@ __powerline() {
     # Copied from Python virtualenv's activate.sh script.
     # https://github.com/pypa/virtualenv/blob/a9b4e673559a5beb24bac1a8fb81446dd84ec6ed/virtualenv_embedded/activate.sh#L62
     # License: MIT
-    if [ "x$VIRTUAL_ENV" != "x" ]; then
+    if [ -n "$VIRTUAL_ENV" ]; then
       if [ "`basename \"$VIRTUAL_ENV\"`" == "__" ]; then
         # special case for Aspen magic directories
         # see http://www.zetadev.com/software/aspen/
@@ -119,29 +168,37 @@ __powerline() {
     printf "$pwd"
   }
 
-  __user() {
-    # Show username only if root or in remote
-    local user_colour="$(__get_colour $BLUE 'bg')"
-    local block=''
+  # superuser or not, here I go!
+  # $1 if present contains fg or bg and forces the function to return the
+  # colour (int) for the fg or bg
+  __user_block() {
+    # Decide colours to use
+    local fg=$WHITE_BRIGHT
+    local bg=$BLUE
+    if [ $(whoami) == "root" ]; then
+      local bg=$RED
+    fi
 
-    if [ $(whoami) = "root" ]; then
-      local user_colour="$(__get_colour $RED 'bg')"
+    if [ $(whoami) == "root" ]; then
       local show_user="y"
       local show_host="y"
     fi
 
-    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    if [[ ! -z "$SSH_CLIENT" || ! -z "$SSH_TTY" ]]; then
       local show_user="y"
       local show_host="y"
     fi
 
-    if [ "x$show_user" != "x" ]; then
-      block+="$user_colour$BOLD$(__get_colour $WHITE_BRIGHT 'fg') $(whoami)"
+    local text
+
+    if [ ! -z ${show_user+x} ]; then
+      text+="$BOLD$(whoami)"
     fi
-    if [ "x$show_host" != "x" ]; then
-      block+="@\h"
+    if [ ! -z ${show_host+x} ]; then
+      text+="@\h"
     fi
-    echo "$block "
+
+    echo $(__prompt_block $bg $fg $text)
   }
 
   __prompt_command() {
@@ -149,37 +206,38 @@ __powerline() {
     printf "%s" "$JOBS"
   }
 
-  ps1() {
+  # Build the prompt
+  prompt() {
     # Check the exit code of the previous command and display different
     # colors in the prompt accordingly.
     local EXIT_CODE=$?
     $(history -a ; history -n)
 
     if [ $EXIT_CODE -eq 0 ]; then
-      local BG_EXIT="$(__get_colour $BLUE_BRIGHT 'bg')"
+      local BG_EXIT="$(__colour $BLUE_BRIGHT 'bg')"
     else
-      local BG_EXIT="$(__get_colour $RED 'bg')"
+      local BG_EXIT="$(__colour $RED 'bg')"
     fi
 
     PS1="\n"
 
-    PS1+="$(__user)$RESET"
+    PS1+="$(__user_block)"
 
-    PS1+="$(__get_colour $BLACK_BRIGHT 'bg')$(__get_colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
+    PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
 
-    PS1+="$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
+    PS1+="$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
 
     PS1+="$(__git_info)$RESET"
 
     JOBS=$(__prompt_command)
     if [ "$JOBS" -gt "0" ]; then
-      PS1+="$BOLD$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET"
+      PS1+="$BOLD$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET"
     fi
 
     PS1+=" "
   }
 
-  PROMPT_COMMAND=ps1
+  PROMPT_COMMAND=prompt
 }
 
 __powerline
