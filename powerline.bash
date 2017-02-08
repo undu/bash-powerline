@@ -4,7 +4,7 @@ __powerline() {
     readonly MAX_PATH_LENGTH=30
 
     # Unicode symbols
-    readonly GIT_BRANCH_SYMBOL=' '
+    readonly GIT_BRANCH_SYMBOL='∓'
     readonly GIT_BRANCH_CHANGED_SYMBOL='Δ'
     readonly GIT_NEED_PUSH_SYMBOL='↑'
     readonly GIT_NEED_PULL_SYMBOL='↓'
