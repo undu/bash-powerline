@@ -9,50 +9,46 @@ __powerline() {
     readonly GIT_NEED_PUSH_SYMBOL='↑'
     readonly GIT_NEED_PULL_SYMBOL='↓'
 
-    # ANSI Colors
-    # Background
-    readonly BG_BLACK="\[$(tput setab 0)\]"
-    readonly BG_RED="\[$(tput setab 1)\]"
-    readonly BG_GREEN="\[$(tput setab 2)\]"
-    readonly BG_YELLOW="\[$(tput setab 3)\]"
-    readonly BG_BLUE="\[$(tput setab 4)\]"
-    readonly BG_MAGENTA="\[$(tput setab 5)\]"
-    readonly BG_CYAN="\[$(tput setab 6)\]"
-    readonly BG_WHITE="\[$(tput setab 7)\]"
+    # ANSI Colours
+    readonly BLACK=0
+    readonly RED=1
+    readonly GREEN=2
+    readonly YELLOW=3
+    readonly BLUE=4
+    readonly MAGENTA=5
+    readonly CYAN=6
+    readonly WHITE=7
 
-    readonly BG_BLACK_BRIGHT="\[$(tput setab 8)\]"
-    readonly BG_RED_BRIGHT="\[$(tput setab 9)\]"
-    readonly BG_GREEN_BRIGHT="\[$(tput setab 10)\]"
-    readonly BG_YELLOW_BRIGHT="\[$(tput setab 11)\]"
-    readonly BG_BLUE_BRIGHT="\[$(tput setab 12)\]"
-    readonly BG_MAGENTA_BRIGHT="\[$(tput setab 13)\]"
-    readonly BG_CYAN_BRIGHT="\[$(tput setab 14)\]"
-    readonly BG_WHITE_BRIGHT="\[$(tput setab 15)\]"
+    readonly BLACK_BRIGHT=8
+    readonly RED_BRIGHT=9
+    readonly GREEN_BRIGHT=10
+    readonly YELLOW_BRIGHT=11
+    readonly BLUE_BRIGHT=12
+    readonly MAGENTA_BRIGHT=13
+    readonly CYAN_BRIGHT=14
+    readonly WHITE_BRIGHT=15
 
-    # Foreground
-    readonly FG_BLACK="\[$(tput setaf 0)\]"
-    readonly FG_RED="\[$(tput setaf 1)\]"
-    readonly FG_GREEN="\[$(tput setaf 2)\]"
-    readonly FG_YELLOW="\[$(tput setaf 3)\]"
-    readonly FG_BLUE="\[$(tput setaf 4)\]"
-    readonly FG_MAGENTA="\[$(tput setaf 5)\]"
-    readonly FG_CYAN="\[$(tput setaf 6)\]"
-    readonly FG_WHITE="\[$(tput setaf 7)\]"
-
-    readonly FG_BLACK_BRIGHT="\[$(tput setaf 8)\]"
-    readonly FG_RED_BRIGHT="\[$(tput setaf 9)\]"
-    readonly FG_GREEN_BRIGHT="\[$(tput setaf 10)\]"
-    readonly FG_YELLOW_BRIGHT="\[$(tput setaf 11)\]"
-    readonly FG_BLUE_BRIGHT="\[$(tput setaf 12)\]"
-    readonly FG_MAGENTA_BRIGHT="\[$(tput setaf 13)\]"
-    readonly FG_CYAN_BRIGHT="\[$(tput setaf 14)\]"
-    readonly FG_WHITE_BRIGHT="\[$(tput setaf 15)\]"
-
-    # Other Effects
+    # Font effects
     readonly DIM="\[$(tput dim)\]"
     readonly REVERSE="\[$(tput rev)\]"
     readonly RESET="\[$(tput sgr0)\]"
     readonly BOLD="\[$(tput bold)\]"
+
+    # Generate terminal colour codes
+    # $1 is an int (a colour) and $2 must be 'fg' or 'bg'
+    __get_colour() {
+      case ${2} in
+        'fg'*)
+          echo "\[$(tput setaf ${1})\]"
+          ;;
+        'bg'*)
+          echo "\[$(tput setab ${1})\]"
+          ;;
+        *)
+          echo "\[$(tput setab ${1})\]"
+          ;;
+      esac
+    }
 
     __git_info() {
         if [ "x$(which git)" == "x" ]; then
@@ -81,12 +77,16 @@ __powerline() {
         [ -n "$aheadN" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
         [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
-        # print the git branch segment without a trailing newline
         if [ "x$marks" = "x" ]; then
-            printf "$BG_GREEN$FG_BLACK $GIT_BRANCH_SYMBOL$branch$marks "
+          local bg=$(__get_colour $GREEN 'bg')
+          local fg=$(__get_colour $BLACK 'fg')
         else
-            printf "$BG_YELLOW$FG_BLACK $GIT_BRANCH_SYMBOL$branch$marks "
+          local bg=$(__get_colour $YELLOW 'bg')
+          local fg=$(__get_colour $BLACK 'fg')
         fi
+
+        # print the git branch segment without a trailing newline
+        printf "$bg$fg $GIT_BRANCH_SYMBOL $branch$marks "
     }
 
     __virtualenv() {
@@ -131,18 +131,18 @@ __powerline() {
         $(history -a ; history -n)
 
         if [ $EXIT_CODE -eq 0 ]; then
-            local BG_EXIT="$BG_BLUE_BRIGHT"
+            local BG_EXIT="$(__get_colour $BLUE_BRIGHT 'bg')"
         else
-            local BG_EXIT="$BG_RED"
+            local BG_EXIT="$(__get_colour $RED 'bg')"
         fi
 
         PS1="\n"
 
         # Show username only if root or in remote
-        local USERCOL="$BG_BLUE"
+        local user_colour="$(__get_colour $BLUE 'bg')"
 
         if [ $(whoami) = "root" ]; then
-          local USERCOL="$BG_RED"
+          local user_colour="$(__get_colour $RED 'bg')"
           local show_user="y"
           local show_host="y"
         fi
@@ -153,23 +153,22 @@ __powerline() {
         fi
 
         if [ "x$show_user" != "x" ]; then
-          PS1+="$USERCOL$BOLD$FG_WHITE_BRIGHT $(whoami)"
+          PS1+="$user_colour$BOLD$(__get_colour $WHITE_BRIGHT 'fg') $(whoami)"
         fi
         if [ "x$show_host" != "x" ]; then
           PS1+="@\h"
         fi
-          PS1+=" $RESET"
+        PS1+=" $RESET"
 
+        PS1+="$(__get_colour $BLACK_BRIGHT 'bg')$(__get_colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
 
-        PS1+="$BG_BLACK_BRIGHT$FG_WHITE_BRIGHT $(__pwd) $RESET"
-
-        PS1+="$BG_BLUE$FG_WHITE_BRIGHT$(__virtualenv)$RESET"
+        PS1+="$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
 
         PS1+="$(__git_info)$RESET "
 
         JOBS=$(__prompt_command)
         if [ "$JOBS" -gt "0" ]; then
-            PS1+="$BOLD$BG_BLUE$FG_WHITE_BRIGHT[${JOBS}-BG]$RESET "
+            PS1+="$BOLD$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET "
         fi
     }
 
