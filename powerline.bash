@@ -201,25 +201,33 @@ __powerline() {
     echo $(__prompt_block $bg $fg $text)
   }
 
-  __prompt_command() {
-    local JOBS=$(jobs | wc -l | tr -d " ")
-    printf "%s" "$JOBS"
+  __status_block() {
+    local exit_code=$?
+    $(history -a ; history -n)
+
+    if [ $exit_code -ne 0 ]; then
+      echo $(__prompt_block $BLACK $RED '✘')
+    fi
+
+    local uid=$(id -u $USER)
+    if [ $uid -eq 0 ]; then
+      echo $(__prompt_block $BLACK $YELLOW '⚡')
+    fi
+
+    local jobs=$(jobs -l | wc -l)
+    if [ $jobs -gt 0 ]; then
+      echo $(__prompt_block $BLACK $YELLOW '⚙')
+    fi
   }
 
   # Build the prompt
   prompt() {
-    # Check the exit code of the previous command and display different
-    # colors in the prompt accordingly.
-    local EXIT_CODE=$?
-    $(history -a ; history -n)
-
-    if [ $EXIT_CODE -eq 0 ]; then
-      local BG_EXIT="$(__colour $BLUE_BRIGHT 'bg')"
-    else
-      local BG_EXIT="$(__colour $RED 'bg')"
-    fi
+    # I don't like bash; execute first to capture correct status code
+    local status_block="$(__status_block)"
 
     PS1="\n"
+
+    PS1+=$status_block
 
     PS1+="$(__user_block)"
 
@@ -228,11 +236,6 @@ __powerline() {
     PS1+="$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
 
     PS1+="$(__git_info)$RESET"
-
-    JOBS=$(__prompt_command)
-    if [ "$JOBS" -gt "0" ]; then
-      PS1+="$BOLD$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET"
-    fi
 
     PS1+=" "
   }
