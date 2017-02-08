@@ -138,7 +138,7 @@ __powerline() {
     printf "$bg$fg $GIT_BRANCH_SYMBOL $branch$marks "
   }
 
-  __virtualenv() {
+  __virtualenv_block() {
     # Copied from Python virtualenv's activate.sh script.
     # https://github.com/pypa/virtualenv/blob/a9b4e673559a5beb24bac1a8fb81446dd84ec6ed/virtualenv_embedded/activate.sh#L62
     # License: MIT
@@ -154,7 +154,7 @@ __powerline() {
     fi
   }
 
-  __pwd() {
+  __pwd_block() {
     # Use ~ to represent $HOME prefix
     local pwd=$(pwd | sed -e "s|^$HOME|~|")
     if [[ ( $pwd = ~\/*\/* || $pwd = \/*\/*/* ) && ${#pwd} -gt $MAX_PATH_LENGTH ]]; then
@@ -166,7 +166,7 @@ __powerline() {
         pwd="/${split[1]}/.../${split[@]:(-2):1}/${split[@]:(-1)}"
       fi
     fi
-    echo "$pwd"
+    echo $(__prompt_block $BLACK_BRIGHT $WHITE_BRIGHT $pwd)
   }
 
   # superuser or not, here I go!
@@ -228,9 +228,9 @@ __powerline() {
 
     PS1="\n"
     PS1+=$status_block
-    PS1+="$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
-    PS1+="$(__user_block)"
-    PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
+    PS1+=$(__virtualenv_block)
+    PS1+=$(__user_block)
+    PS1+=$(__pwd_block)
     PS1+="$(__git_info)$RESET"
     PS1+=" "
   }
