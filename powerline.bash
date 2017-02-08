@@ -146,10 +146,11 @@ __powerline() {
       if [ "`basename \"$VIRTUAL_ENV\"`" == "__" ]; then
         # special case for Aspen magic directories
         # see http://www.zetadev.com/software/aspen/
-        printf "[`basename \`dirname \"$VIRTUAL_ENV\"\``]"
+        local text="[`basename \`dirname \"$VIRTUAL_ENV\"\``]"
       else
-        printf "(`basename \"$VIRTUAL_ENV\"`)"
+        local text="(`basename \"$VIRTUAL_ENV\"`)"
       fi
+      echo $(__prompt_block $WHITE $BLACK $text)
     fi
   }
 
@@ -165,7 +166,7 @@ __powerline() {
         pwd="/${split[1]}/.../${split[@]:(-2):1}/${split[@]:(-1)}"
       fi
     fi
-    printf "$pwd"
+    echo "$pwd"
   }
 
   # superuser or not, here I go!
@@ -216,7 +217,7 @@ __powerline() {
 
     local jobs=$(jobs -l | wc -l)
     if [ $jobs -gt 0 ]; then
-      echo $(__prompt_block $BLACK $YELLOW '⚙')
+      echo $(__prompt_block $BLACK $CYAN '⚙')
     fi
   }
 
@@ -226,17 +227,11 @@ __powerline() {
     local status_block="$(__status_block)"
 
     PS1="\n"
-
     PS1+=$status_block
-
-    PS1+="$(__user_block)"
-
-    PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
-
     PS1+="$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
-
+    PS1+="$(__user_block)"
+    PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
     PS1+="$(__git_info)$RESET"
-
     PS1+=" "
   }
 
