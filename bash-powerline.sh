@@ -144,14 +144,22 @@ __powerline() {
         if [ $(whoami) = "root" ]; then
           local USERCOL="$BG_RED"
           local show_user="y"
+          local show_host="y"
         fi
+
         if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
           local show_user="y"
+          local show_host="y"
         fi
 
         if [ "x$show_user" != "x" ]; then
-          PS1+="$USERCOL$BOLD$FG_WHITE_BRIGHT $(whoami) $RESET"
+          PS1+="$USERCOL$BOLD$FG_WHITE_BRIGHT $(whoami)"
         fi
+        if [ "x$show_host" != "x" ]; then
+          PS1+="@\h"
+        fi
+          PS1+=" $RESET"
+
 
         PS1+="$BG_BLACK_BRIGHT$FG_WHITE_BRIGHT $(__pwd) $RESET"
 
