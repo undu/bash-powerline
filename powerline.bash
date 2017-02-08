@@ -119,6 +119,31 @@ __powerline() {
         printf "$pwd"
     }
 
+    __user() {
+        # Show username only if root or in remote
+        local user_colour="$(__get_colour $BLUE 'bg')"
+        local block=''
+
+        if [ $(whoami) = "root" ]; then
+          local user_colour="$(__get_colour $RED 'bg')"
+          local show_user="y"
+          local show_host="y"
+        fi
+
+        if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+          local show_user="y"
+          local show_host="y"
+        fi
+
+        if [ "x$show_user" != "x" ]; then
+          block+="$user_colour$BOLD$(__get_colour $WHITE_BRIGHT 'fg') $(whoami)"
+        fi
+        if [ "x$show_host" != "x" ]; then
+          block+="@\h"
+        fi
+        echo "$block "
+    }
+
     __prompt_command() {
         local JOBS=$(jobs | wc -l | tr -d " ")
         printf "%s" "$JOBS"
@@ -138,38 +163,20 @@ __powerline() {
 
         PS1="\n"
 
-        # Show username only if root or in remote
-        local user_colour="$(__get_colour $BLUE 'bg')"
-
-        if [ $(whoami) = "root" ]; then
-          local user_colour="$(__get_colour $RED 'bg')"
-          local show_user="y"
-          local show_host="y"
-        fi
-
-        if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-          local show_user="y"
-          local show_host="y"
-        fi
-
-        if [ "x$show_user" != "x" ]; then
-          PS1+="$user_colour$BOLD$(__get_colour $WHITE_BRIGHT 'fg') $(whoami)"
-        fi
-        if [ "x$show_host" != "x" ]; then
-          PS1+="@\h"
-        fi
-        PS1+=" $RESET"
+        PS1+="$(__user)$RESET"
 
         PS1+="$(__get_colour $BLACK_BRIGHT 'bg')$(__get_colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
 
         PS1+="$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
 
-        PS1+="$(__git_info)$RESET "
+        PS1+="$(__git_info)$RESET"
 
         JOBS=$(__prompt_command)
         if [ "$JOBS" -gt "0" ]; then
-            PS1+="$BOLD$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET "
+            PS1+="$BOLD$(__get_colour $BLUE 'bg')$(__get_colour $WHITE_BRIGHT 'fg')[${JOBS}-BG]$RESET"
         fi
+
+        PS1+=" "
     }
 
     PROMPT_COMMAND=ps1
