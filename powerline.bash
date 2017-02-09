@@ -162,6 +162,8 @@ __powerline() {
         text="($(basename \""$VIRTUAL_ENV"\"))"
       fi
       __prompt_block $WHITE $BLACK "$text"
+    else
+      __block_text=''
     fi
   }
 
@@ -211,30 +213,29 @@ __powerline() {
     if [ ! -z ${text+x} ]; then
       __prompt_block $bg $fg $text
     fi
-
   }
 
   __status_block() {
-    local prompt
+    local text
     if [ $exit_code -ne 0 ]; then
       __prompt_block $BLACK $RED '✘'
-      prompt+=$__block_text
+      text+=$__block_text
     fi
 
     local uid; uid=$(id -u "$USER")
     if [ "$uid" -eq 0 ]; then
       __prompt_block $BLACK $YELLOW '⚡'
-      prompt+=$__block_text
+      text+=$__block_text
     fi
 
     local jobs; jobs=$(jobs -l | wc -l)
     if [ "$jobs" -gt 0 ]; then
       __prompt_block $BLACK $CYAN '⚙'
-      prompt+=$__block_text
+      text+=$__block_text
     fi
 
-    if [ ! -z "$prompt" ]; then
-      __block_text=$prompt
+    if [ ! -z "$text" ]; then
+      __block_text=$text
     else
       __block_text=''
     fi
@@ -247,7 +248,6 @@ __powerline() {
     $(history -a ; history -n)
 
     last_bg=''
-    block_text=''
 
     PS1=''
 
