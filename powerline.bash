@@ -125,25 +125,42 @@ __powerline() {
 
   ### Prompt components
 
-  __git_info() {
+  __git_block() {
     if [ ! hash git 2> /dev/null ]; then
       # git not found
+      __block_text=''
       return
     fi
     # force git output in English to make our work easier
     local git_eng="env LANG=C git"
-    # get current branch name or short SHA1 hash for detached head
-    local branch; branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
 
-    if [ -z "${branch}" ]; then
-      # git branch not found
+    # check if pwd is under git
+    git rev-parse 2> /dev/null
+    if [ $? != 0 ]; then
+      # not in a git repo, bail out
+      __block_text=''
       return
     fi
 
+    # get current branch name or short SHA1 hash for detached head
+    local branch; local ref_symbol
+    branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null)"
+    if [ $? != 0 ]; then
+      branch="$($git_eng describe --tags --always 2>/dev/null)"
+      ref_symbol='➦'
+    else
+      ref_symbol=$GIT_BRANCH_SYMBOL
+    fi
+
+    ref="$ref_symbol $branch "
+
     local marks
 
-    # branch is modified?
-    [ -n "$($git_eng status --porcelain 2>/dev/null)" ] && marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+    # check if HEAD is dirty
+    if [ -n "$($git_eng status --porcelain 2>/dev/null)" ]; then
+      dirty='y'
+      marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+    fi
 
     # how many commits local branch is ahead/behind of remote?
     local stat; local aheadN; local behindN
@@ -154,15 +171,14 @@ __powerline() {
     [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
     local bg; local fg
-    fg=$(__colour $BLACK 'fg')
-    if [ -z "$marks" ]; then
-      bg=$(__colour $GREEN 'bg')
+    fg=$BLACK
+    if [ -z "$dirty" ]; then
+      bg=$GREEN
     else
-      bg=$(__colour $YELLOW 'bg')
+      bg=$YELLOW
     fi
 
-    # print the git branch segment without a trailing newline
-    echo "$bg$fg $GIT_BRANCH_SYMBOL $branch$marks "
+    __prompt_block $bg $fg "$ref$marks"
   }
 
   __virtualenv_block() {
@@ -280,7 +296,8 @@ __powerline() {
     __pwd_block
     PS1+=$__block_text
 
-    PS1+=$(__git_info)
+    __git_block
+    PS1+=$__block_text
 
    __end_block
     PS1+=$__block_text
