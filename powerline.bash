@@ -106,6 +106,23 @@ __powerline() {
     __block_text="$block"
   }
 
+  function __end_block() {
+    __block_text=''
+    if [ ! -z "$last_bg" ]; then
+      if [ ! -z "${POWERLINE_FONT+x}" ]; then
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$last_bg" 'fg')"
+        __block_text+="$BLOCK_START$RESET"
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+      else
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+      fi
+    fi
+      __block_text+=' '
+  }
+
   ### Prompt components
 
   __git_info() {
@@ -265,7 +282,8 @@ __powerline() {
 
     PS1+=$(__git_info)
 
-    PS1+="$RESET "
+   __end_block
+    PS1+=$__block_text
   }
 
   PROMPT_COMMAND=prompt
