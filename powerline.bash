@@ -70,8 +70,8 @@ __powerline() {
     if [ ! -z "${1+x}" ]; then
       bg=$1
     else
-      if [ ! -z "$BG" ]; then
-        bg=$BG
+      if [ "$last_bg" != -1 ]; then
+        bg=$last_bg
       else
         bg=$DEFAULT_BG
       fi
@@ -85,9 +85,9 @@ __powerline() {
     local block
 
     # Need to generate a separator if the background changes
-    if [[ ! -z "$BG" && "$bg" != "$BG" && ! -z "${POWERLINE_FONT+x}" ]]; then
+    if [[ "$last_bg" != -1 && "$bg" != "$last_bg" && ! -z "${POWERLINE_FONT+x}" ]]; then
       block+="$(__colour "$bg" 'bg')"
-      block+="$(__colour "$BG" 'fg')"
+      block+="$(__colour "$last_bg" 'fg')"
       block+="$BLOCK_START $RESET"
       block+="$(__colour "$bg" 'bg')"
       block+="$(__colour "$fg" 'fg')"
@@ -101,14 +101,17 @@ __powerline() {
       block+="$3 $RESET"
     fi
 
-    BG=$bg
+    last_bg=$bg
+    echo "__block \$last_bg: $last_bg" >> log
+    echo "__block \$bg: $bg" >> log
+
     echo "$block"
   }
 
   ### Prompt components
 
   __git_info() {
-    if [ "x$(which git)" == "x" ]; then
+    if [ -z "$(which git)" ]; then
       # git not found
       return
     fi
@@ -117,7 +120,7 @@ __powerline() {
     # get current branch name or short SHA1 hash for detached head
     local branch; branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
 
-    if [ "x$branch" == "x" ]; then
+    if [ -z "${branch+x}" ]; then
       # git branch not found
       return
     fi
@@ -161,6 +164,7 @@ __powerline() {
         text="($(basename \""$VIRTUAL_ENV"\"))"
       fi
       __prompt_block $WHITE $BLACK "$text"
+      echo "__component \$last_bg: $last_bg" >> log
     fi
   }
 
@@ -177,6 +181,7 @@ __powerline() {
       fi
     fi
     __prompt_block $BLACK_BRIGHT $WHITE_BRIGHT "$pwd"
+      echo "__component \$last_bg: $last_bg" >> log
   }
 
   # superuser or not, here I go!
@@ -190,10 +195,8 @@ __powerline() {
       local bg=$RED
     fi
 
-    if [ "$(whoami)" == "root" ]; then
       local show_user="y"
       local show_host="y"
-    fi
 
     if [[ ! -z "$SSH_CLIENT" || ! -z "$SSH_TTY" ]]; then
       local show_user="y"
@@ -211,6 +214,7 @@ __powerline() {
 
     if [ ! -z ${text+x} ]; then
       __prompt_block $bg $fg $text
+      echo "__component \$last_bg: $last_bg" >> log
     fi
 
   }
@@ -219,16 +223,19 @@ __powerline() {
     local prompt
     if [ $exit_code -ne 0 ]; then
       prompt+=$(__prompt_block $BLACK $RED '✘')
+      echo "__component \$last_bg: $last_bg" >> log
     fi
 
     local uid; uid=$(id -u "$USER")
     if [ "$uid" -eq 0 ]; then
       prompt+=$(__prompt_block $BLACK $YELLOW '⚡')
+      echo "__component \$last_bg: $last_bg" >> log
     fi
 
     local jobs; jobs=$(jobs -l | wc -l)
     if [ "$jobs" -gt 0 ]; then
       prompt+=$(__prompt_block $BLACK $CYAN '⚙')
+      echo "__component \$last_bg: $last_bg" >> log
     fi
 
     if [ ! -z "$prompt" ]; then
@@ -242,12 +249,39 @@ __powerline() {
     local exit_code=$?
     $(history -a ; history -n)
 
+    last_bg='-1'
+
     PS1=''
+    echo "__status_block:" >> log
+    echo "pre \$last_bg: $last_bg" >> log
     PS1+=$(__status_block)
+    echo "post \$last_bg: $last_bg" >> log
+    echo '' >> log
+
+    echo "__virtualenv_block:" >> log
+    echo "pre \$last_bg: $last_bg" >> log
     PS1+=$(__virtualenv_block)
+    echo "post \$last_bg: $last_bg" >> log
+    echo '' >> log
+
+    echo "__user_block:" >> log
+    echo "pre \$last_bg: $last_bg" >> log
     PS1+=$(__user_block)
+    echo "post \$last_bg: $last_bg" >> log
+    echo '' >> log
+
+    echo "__pwd_block:" >> log
+    echo "pre \$last_bg: $last_bg" >> log
     PS1+=$(__pwd_block)
+    echo "post \$last_bg: $last_bg" >> log
+    echo '' >> log
+
+    echo "__git_info_block:" >> log
+    echo "pre \$last_bg: $last_bg" >> log
     PS1+=$(__git_info)
+    echo "post \$last_bg: $last_bg" >> log
+    echo '' >> log
+
     PS1+="$RESET "
   }
 
