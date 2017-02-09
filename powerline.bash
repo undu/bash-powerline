@@ -244,7 +244,7 @@ __powerline() {
     # I don't like bash; execute first to capture correct status code
     local status_block="$(__status_block)"
 
-    PS1="\n"
+    PS1=''
     PS1+=$status_block
     PS1+=$(__virtualenv_block)
     PS1+=$(__user_block)
