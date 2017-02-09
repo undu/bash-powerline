@@ -209,7 +209,10 @@ __powerline() {
       text+="@\h"
     fi
 
-    __prompt_block $bg $fg $text
+    if [ ! -z ${text+x} ]; then
+      __prompt_block $bg $fg $text
+    fi
+
   }
 
   __status_block() {
