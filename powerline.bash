@@ -70,7 +70,7 @@ __powerline() {
     if [ ! -z "${1+x}" ]; then
       bg=$1
     else
-      if [ "$last_bg" != -1 ]; then
+      if [ ! -z "$last_bg" ]; then
         bg=$last_bg
       else
         bg=$DEFAULT_BG
@@ -85,7 +85,7 @@ __powerline() {
     local block
 
     # Need to generate a separator if the background changes
-    if [[ "$last_bg" != -1 && "$bg" != "$last_bg" && ! -z "${POWERLINE_FONT+x}" ]]; then
+    if [[ ! -z "$last_bg" && "$bg" != "$last_bg" && ! -z "${POWERLINE_FONT+x}" ]]; then
       block+="$(__colour "$bg" 'bg')"
       block+="$(__colour "$last_bg" 'fg')"
       block+="$BLOCK_START $RESET"
@@ -103,7 +103,7 @@ __powerline() {
 
     last_bg=$bg
 
-    echo "$block"
+    __block_text="$block"
   }
 
   ### Prompt components
@@ -217,21 +217,26 @@ __powerline() {
   __status_block() {
     local prompt
     if [ $exit_code -ne 0 ]; then
-      prompt+=$(__prompt_block $BLACK $RED '✘')
+      __prompt_block $BLACK $RED '✘'
+      prompt+=$__block_text
     fi
 
     local uid; uid=$(id -u "$USER")
     if [ "$uid" -eq 0 ]; then
-      prompt+=$(__prompt_block $BLACK $YELLOW '⚡')
+      __prompt_block $BLACK $YELLOW '⚡'
+      prompt+=$__block_text
     fi
 
     local jobs; jobs=$(jobs -l | wc -l)
     if [ "$jobs" -gt 0 ]; then
-      prompt+=$(__prompt_block $BLACK $CYAN '⚙')
+      __prompt_block $BLACK $CYAN '⚙'
+      prompt+=$__block_text
     fi
 
     if [ ! -z "$prompt" ]; then
-      echo $prompt
+      __block_text=$prompt
+    else
+      __block_text=''
     fi
   }
 
@@ -241,13 +246,23 @@ __powerline() {
     local exit_code=$?
     $(history -a ; history -n)
 
-    last_bg='-1'
+    last_bg=''
+    block_text=''
 
     PS1=''
-    PS1+=$(__status_block)
-    PS1+=$(__virtualenv_block)
-    PS1+=$(__user_block)
-    PS1+=$(__pwd_block)
+
+    __status_block
+    PS1+=$__block_text
+
+    __virtualenv_block
+    PS1+=$__block_text
+
+    __user_block
+    PS1+=$__block_text
+
+    __pwd_block
+    PS1+=$__block_text
+
     PS1+=$(__git_info)
 
     PS1+="$RESET "
