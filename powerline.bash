@@ -219,25 +219,30 @@ __powerline() {
     local exit_code=$?
     $(history -a ; history -n)
 
+    local prompt
     if [ $exit_code -ne 0 ]; then
-      __prompt_block $BLACK $RED '✘'
+      prompt+=$(__prompt_block $BLACK $RED '✘')
     fi
 
     local uid; uid=$(id -u "$USER")
     if [ "$uid" -eq 0 ]; then
-      __prompt_block $BLACK $YELLOW '⚡'
+      prompt+=$(__prompt_block $BLACK $YELLOW '⚡')
     fi
 
     local jobs; jobs=$(jobs -l | wc -l)
     if [ "$jobs" -gt 0 ]; then
-      __prompt_block $BLACK $CYAN '⚙'
+      prompt+=$(__prompt_block $BLACK $CYAN '⚙')
+    fi
+
+    if [ ! -z "$prompt" ]; then
+      echo $prompt
     fi
   }
 
   # Build the prompt
   prompt() {
     # I don't like bash; execute first to capture correct status code
-    local status_block; status_block="$(__status_block)"
+    local status_block="$(__status_block)"
 
     PS1="\n"
     PS1+=$status_block
