@@ -3,12 +3,19 @@ __powerline() {
   # Max length of full path
   readonly MAX_PATH_LENGTH=30
 
+  # Use powerline mode by default
+  readonly POWERLINE_FONT=''
+
   # Default background and foreground ANSI colours
   readonly DEFAULT_BG=0
   readonly DEFAULT_FG=7
 
   # Unicode symbols
-  readonly GIT_BRANCH_SYMBOL='∓'
+  if [ -z "${POWERLINE_FONT+x}" ]; then
+    readonly GIT_BRANCH_SYMBOL='∓'
+  else
+    readonly GIT_BRANCH_SYMBOL=''
+  fi
   readonly GIT_BRANCH_CHANGED_SYMBOL='Δ'
   readonly GIT_NEED_PUSH_SYMBOL='↑'
   readonly GIT_NEED_PULL_SYMBOL='↓'
@@ -138,7 +145,7 @@ __powerline() {
     printf "$bg$fg $GIT_BRANCH_SYMBOL $branch$marks "
   }
 
-  __virtualenv() {
+  __virtualenv_block() {
     # Copied from Python virtualenv's activate.sh script.
     # https://github.com/pypa/virtualenv/blob/a9b4e673559a5beb24bac1a8fb81446dd84ec6ed/virtualenv_embedded/activate.sh#L62
     # License: MIT
@@ -228,11 +235,11 @@ __powerline() {
 
     PS1="\n"
     PS1+=$status_block
-    PS1+="$(__colour $BLUE 'bg')$(__colour $WHITE_BRIGHT 'fg')$(__virtualenv)$RESET"
-    PS1+="$(__user_block)"
+    PS1+=$(__virtualenv_block)
+    PS1+=$(__user_block)
     PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
-    PS1+="$(__git_info)$RESET"
-    PS1+=" "
+    PS1+=$(__git_info)
+    PS1+="$RESET "
   }
 
   PROMPT_COMMAND=prompt
