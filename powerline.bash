@@ -109,7 +109,7 @@ __powerline() {
   ### Prompt components
 
   __git_info() {
-    if [ -z "$(which git)" ]; then
+    if [ ! hash git 2> /dev/null ]; then
       # git not found
       return
     fi
@@ -118,7 +118,7 @@ __powerline() {
     # get current branch name or short SHA1 hash for detached head
     local branch; branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
 
-    if [ -z "${branch+x}" ]; then
+    if [ -z "${branch}" ]; then
       # git branch not found
       return
     fi
