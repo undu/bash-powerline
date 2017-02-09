@@ -164,7 +164,7 @@ __powerline() {
     fi
   }
 
-  __pwd() {
+  __pwd_block() {
     # Use ~ to represent $HOME prefix
     local pwd; pwd=$(pwd | sed -e "s|^$HOME|~|")
     if [[ ( $pwd = ~\/*\/* || $pwd = \/*\/*/* ) && ${#pwd} -gt $MAX_PATH_LENGTH ]]; then
@@ -176,7 +176,7 @@ __powerline() {
         pwd="/${split[1]}/.../${split[*]:(-2):1}/${split[*]:(-1)}"
       fi
     fi
-    echo "$pwd"
+    __prompt_block $BLACK_BRIGHT $WHITE_BRIGHT "$pwd"
   }
 
   # superuser or not, here I go!
@@ -248,7 +248,7 @@ __powerline() {
     PS1+=$status_block
     PS1+=$(__virtualenv_block)
     PS1+=$(__user_block)
-    PS1+="$(__colour $BLACK_BRIGHT 'bg')$(__colour $WHITE_BRIGHT 'fg') $(__pwd) $RESET"
+    PS1+=$(__pwd_block)
     PS1+=$(__git_info)
     PS1+="$RESET "
   }
