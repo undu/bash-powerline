@@ -7,29 +7,27 @@ Powerline for Bash in pure Bash script.
 
 ## Features
 
-* Git branch: display current git branch name, or short SHA1 hash when the head is detached
-* Git branch: display "+" symbol when current branch is changed but uncommited
-* Git branch: display "⇡" symbol and the difference in the number of commits when the current branch is ahead of remote (see screenshot)
-* Git branch: display "⇣" symbol and the difference in the number of commits when the current branch is behind of remote (see screenshot)
+* Git:
+ - displays current git branch name, or short SHA1 hash when the head is detached.
+ - displays when current branch is changed but uncommited.
+ - displays the number of commits when the current branch is behind or ahead of remote
 * Python virtualenv: display current virtual environment
-* Platform-dependent prompt symbol for OS X and Linux (see screenshots)
 * Color code for the previously failed command
 * Fast execution (no noticable delay)
 * Default settings do not require patched fonts
 * Optional support for powerline [patched fonts](https://github.com/powerline/fonts)
-  (export USE_POWERLINE_FONTS=1 in .bashrc to enable patched fonts)
+  (export POWERLINE\_FONT=1 in .bashrc to enable patched fonts)
 * Shortened path if current working path is too deep and too long
-* Exit code shown after path and before prompt symbol
 
 ## Installation
 
 Download the Bash script
 
-    curl https://raw.githubusercontent.com/kchau/bash-powerline/master/bash-powerline.sh > ~/.bash-powerline.sh
+    curl https://raw.githubusercontent.com/undu/bash-powerline/master/powerline.bash > ~/.powerline.bash
 
 And source it in your `.bashrc`
 
-    source ~/.bash-powerline.sh
+    source ~/.powerline.bash
 
 For best results, use [Base16
 colorscheme](http://chriskempson.github.io/base16/) with your terminal
