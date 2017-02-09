@@ -216,9 +216,6 @@ __powerline() {
   }
 
   __status_block() {
-    local exit_code=$?
-    $(history -a ; history -n)
-
     local prompt
     if [ $exit_code -ne 0 ]; then
       prompt+=$(__prompt_block $BLACK $RED '✘')
@@ -242,10 +239,11 @@ __powerline() {
   # Build the prompt
   prompt() {
     # I don't like bash; execute first to capture correct status code
-    local status_block="$(__status_block)"
+    local exit_code=$?
+    $(history -a ; history -n)
 
     PS1=''
-    PS1+=$status_block
+    PS1+=$(__status_block)
     PS1+=$(__virtualenv_block)
     PS1+=$(__user_block)
     PS1+=$(__pwd_block)
