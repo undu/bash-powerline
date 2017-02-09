@@ -3,8 +3,8 @@ __powerline() {
   # Max length of full path
   readonly MAX_PATH_LENGTH=30
 
-  # Use powerline mode by default
-  readonly POWERLINE_FONT=''
+  # Use powerline mode
+  # readonly POWERLINE_FONT=''
 
   # Default background and foreground ANSI colours
   readonly DEFAULT_BG=0
@@ -12,7 +12,7 @@ __powerline() {
 
   # Unicode symbols
   if [ -z "${POWERLINE_FONT+x}" ]; then
-    readonly GIT_BRANCH_SYMBOL='∓'
+    readonly GIT_BRANCH_SYMBOL='⑂'
   else
     readonly GIT_BRANCH_SYMBOL=''
   fi
