@@ -233,7 +233,7 @@ __powerline() {
 
     if [[  ! -z "$SSH_CLIENT" ]]; then
       local show_host="y"
-      bg=$GREEN
+      bg=$CYAN
     fi
 
     if [ -z "$(id -u "$USER")" ]; then
