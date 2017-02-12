@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 __powerline() {
-  # Max length of full path
-  readonly MAX_PATH_LENGTH=30
 
+  # User config variables,
+  # it's recommended to override those variables through .bashrc or similar
+  #
   # Use powerline mode
   # readonly POWERLINE_FONT=''
+  #
+  # Always show user in the prompt
+  # readonly SHOW_USER=''
+  #
+  # Never show a default user
+  # readonly DEFAULT_USER='user'
 
   # Default background and foreground ANSI colours
   readonly DEFAULT_BG=0
   readonly DEFAULT_FG=7
+
+  # Max length of full path
+  readonly MAX_PATH_LENGTH=30
 
   # Unicode symbols
   if [ -z "${POWERLINE_FONT+x}" ]; then
@@ -120,7 +130,7 @@ __powerline() {
         __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
       fi
     fi
-      __block_text+=' '
+    __block_text+=' '
   }
 
   ### Prompt components
@@ -216,31 +226,33 @@ __powerline() {
   }
 
   # superuser or not, here I go!
-  # $1 if present contains fg or bg and forces the function to return the
-  # colour (int) for the fg or bg
   __user_block() {
-    # Decide colours to use
+    # Colours to use
     local fg=$WHITE_BRIGHT
     local bg=$BLUE
-    if [ "$(whoami)" == "root" ]; then
-      local bg=$RED
+
+    if [[  ! -z "$SSH_CLIENT" ]]; then
+      local show_host="y"
+      bg=$GREEN
     fi
 
-      local show_user="y"
-      local show_host="y"
+    if [ -z "$(id -u "$USER")" ]; then
+      bg=$RED
+    fi
 
-    if [[ ! -z "$SSH_CLIENT" || ! -z "$SSH_TTY" ]]; then
+    if [[ ! -z "${SHOW_USER+x}" && "$DEFAULT_USER" != "$(whoami)" ]]; then
       local show_user="y"
-      local show_host="y"
     fi
 
     local text
-
     if [ ! -z ${show_user+x} ]; then
       text+="$BOLD$(whoami)"
     fi
     if [ ! -z ${show_host+x} ]; then
-      text+="@\h"
+      if [ ! -z ${text+x} ]; then
+        text+="@"
+      fi
+      text+="\h"
     fi
 
     if [ ! -z ${text+x} ]; then
@@ -250,19 +262,17 @@ __powerline() {
 
   __status_block() {
     local text
-    if [ $exit_code -ne 0 ]; then
+    if [ $exit_code != 0 ]; then
       __prompt_block $BLACK $RED '✘'
       text+=$__block_text
     fi
 
-    local uid; uid=$(id -u "$USER")
-    if [ "$uid" -eq 0 ]; then
+    if [ "$(id -u "$USER")" == 0 ]; then
       __prompt_block $BLACK $YELLOW '⚡'
       text+=$__block_text
     fi
 
-    local jobs; jobs=$(jobs -l | wc -l)
-    if [ "$jobs" -gt 0 ]; then
+    if [ "$(jobs -l | wc -l)" != 0 ]; then
       __prompt_block $BLACK $CYAN '⚙'
       text+=$__block_text
     fi
@@ -299,7 +309,7 @@ __powerline() {
     __git_block
     PS1+=$__block_text
 
-   __end_block
+    __end_block
     PS1+=$__block_text
   }
 
