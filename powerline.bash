@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 __powerline() {
-  # Max length of full path
-  readonly MAX_PATH_LENGTH=30
 
+  # User config variables,
+  # it's recommended to override those variables through .bashrc or similar
+  #
   # Use powerline mode
   # readonly POWERLINE_FONT=''
+  #
+  # Always show user in the prompt
+  # readonly SHOW_USER=''
+  #
+  # Never show a default user
+  # readonly DEFAULT_USER='user'
 
   # Default background and foreground ANSI colours
   readonly DEFAULT_BG=0
   readonly DEFAULT_FG=7
+
+  # Max length of full path
+  readonly MAX_PATH_LENGTH=30
 
   # Unicode symbols
   if [ -z "${POWERLINE_FONT+x}" ]; then
@@ -106,27 +116,61 @@ __powerline() {
     __block_text="$block"
   }
 
+  function __end_block() {
+    __block_text=''
+    if [ ! -z "$last_bg" ]; then
+      if [ ! -z "${POWERLINE_FONT+x}" ]; then
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$last_bg" 'fg')"
+        __block_text+="$BLOCK_START$RESET"
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+      else
+        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+      fi
+    fi
+    __block_text+=' '
+  }
+
   ### Prompt components
 
-  __git_info() {
+  __git_block() {
     if [ ! hash git 2> /dev/null ]; then
       # git not found
+      __block_text=''
       return
     fi
     # force git output in English to make our work easier
     local git_eng="env LANG=C git"
-    # get current branch name or short SHA1 hash for detached head
-    local branch; branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null || $git_eng describe --tags --always 2>/dev/null)"
 
-    if [ -z "${branch}" ]; then
-      # git branch not found
+    # check if pwd is under git
+    git rev-parse 2> /dev/null
+    if [ $? != 0 ]; then
+      # not in a git repo, bail out
+      __block_text=''
       return
     fi
 
+    # get current branch name or short SHA1 hash for detached head
+    local branch; local ref_symbol
+    branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null)"
+    if [ $? != 0 ]; then
+      branch="$($git_eng describe --tags --always 2>/dev/null)"
+      ref_symbol='➦'
+    else
+      ref_symbol=$GIT_BRANCH_SYMBOL
+    fi
+
+    ref="$ref_symbol $branch "
+
     local marks
 
-    # branch is modified?
-    [ -n "$($git_eng status --porcelain 2>/dev/null)" ] && marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+    # check if HEAD is dirty
+    if [ -n "$($git_eng status --porcelain 2>/dev/null)" ]; then
+      dirty='y'
+      marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+    fi
 
     # how many commits local branch is ahead/behind of remote?
     local stat; local aheadN; local behindN
@@ -137,15 +181,14 @@ __powerline() {
     [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
     local bg; local fg
-    fg=$(__colour $BLACK 'fg')
-    if [ -z "$marks" ]; then
-      bg=$(__colour $GREEN 'bg')
+    fg=$BLACK
+    if [ -z "$dirty" ]; then
+      bg=$GREEN
     else
-      bg=$(__colour $YELLOW 'bg')
+      bg=$YELLOW
     fi
 
-    # print the git branch segment without a trailing newline
-    echo "$bg$fg $GIT_BRANCH_SYMBOL $branch$marks "
+    __prompt_block $bg $fg "$ref$marks"
   }
 
   __virtualenv_block() {
@@ -183,31 +226,33 @@ __powerline() {
   }
 
   # superuser or not, here I go!
-  # $1 if present contains fg or bg and forces the function to return the
-  # colour (int) for the fg or bg
   __user_block() {
-    # Decide colours to use
+    # Colours to use
     local fg=$WHITE_BRIGHT
     local bg=$BLUE
-    if [ "$(whoami)" == "root" ]; then
-      local bg=$RED
+
+    if [[  ! -z "$SSH_CLIENT" ]]; then
+      local show_host="y"
+      bg=$CYAN
     fi
 
-      local show_user="y"
-      local show_host="y"
+    if [ -z "$(id -u "$USER")" ]; then
+      bg=$RED
+    fi
 
-    if [[ ! -z "$SSH_CLIENT" || ! -z "$SSH_TTY" ]]; then
+    if [[ ! -z "${SHOW_USER+x}" && "$DEFAULT_USER" != "$(whoami)" ]]; then
       local show_user="y"
-      local show_host="y"
     fi
 
     local text
-
     if [ ! -z ${show_user+x} ]; then
       text+="$BOLD$(whoami)"
     fi
     if [ ! -z ${show_host+x} ]; then
-      text+="@\h"
+      if [ ! -z ${text+x} ]; then
+        text+="@"
+      fi
+      text+="\h"
     fi
 
     if [ ! -z ${text+x} ]; then
@@ -217,19 +262,17 @@ __powerline() {
 
   __status_block() {
     local text
-    if [ $exit_code -ne 0 ]; then
+    if [ $exit_code != 0 ]; then
       __prompt_block $BLACK $RED '✘'
       text+=$__block_text
     fi
 
-    local uid; uid=$(id -u "$USER")
-    if [ "$uid" -eq 0 ]; then
+    if [ "$(id -u "$USER")" == 0 ]; then
       __prompt_block $BLACK $YELLOW '⚡'
       text+=$__block_text
     fi
 
-    local jobs; jobs=$(jobs -l | wc -l)
-    if [ "$jobs" -gt 0 ]; then
+    if [ "$(jobs -l | wc -l)" != 0 ]; then
       __prompt_block $BLACK $CYAN '⚙'
       text+=$__block_text
     fi
@@ -263,9 +306,11 @@ __powerline() {
     __pwd_block
     PS1+=$__block_text
 
-    PS1+=$(__git_info)
+    __git_block
+    PS1+=$__block_text
 
-    PS1+="$RESET "
+    __end_block
+    PS1+=$__block_text
   }
 
   PROMPT_COMMAND=prompt
