@@ -2,8 +2,8 @@
 
 Powerline for Bash in pure Bash script.
 
-![bash-powerline](https://raw.githubusercontent.com/kalvinnchau/bash-powerline/master/screenshots/default.png)
-![bash-powerline](https://raw.githubusercontent.com/kalvinnchau/bash-powerline/master/screenshots/patched.png)
+![bash-non-powerline](https://raw.githubusercontent.com/undu/bash-powerline/master/screenshots/default.png)
+![bash-powerline](https://raw.githubusercontent.com/undu/bash-powerline/master/screenshots/patched.png)
 
 ## Features
 
