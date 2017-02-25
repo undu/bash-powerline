@@ -240,7 +240,7 @@ __powerline() {
       bg=$RED
     fi
 
-    if [[ ! -z "${SHOW_USER+x}" && "$DEFAULT_USER" != "$(whoami)" ]]; then
+    if [[ ! -z "${SHOW_USER+x}" || (  ! -z "${DEFAULT_USER+x}" && "$DEFAULT_USER" != "$(whoami)" ) ]]; then
       local show_user="y"
     fi
 
