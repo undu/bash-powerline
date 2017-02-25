@@ -2,8 +2,9 @@
 
 Powerline for Bash in pure Bash script.
 
-![bash-powerline](https://raw.githubusercontent.com/kalvinnchau/bash-powerline/master/screenshots/default.png)
-![bash-powerline](https://raw.githubusercontent.com/kalvinnchau/bash-powerline/master/screenshots/patched.png)
+![bash-non-powerline](https://raw.githubusercontent.com/undu/bash-powerline/master/screenshots/default.png)
+
+![bash-powerline](https://raw.githubusercontent.com/undu/bash-powerline/master/screenshots/patched.png)
 
 ## Features
 
@@ -25,9 +26,13 @@ Download the Bash script
 
     curl https://raw.githubusercontent.com/undu/bash-powerline/master/powerline.bash > ~/.powerline.bash
 
-And source it in your `.bashrc`
+Do a cursory content of it contents to see if it's sane, and source it.
 
     source ~/.powerline.bash
+
+After you do the test run, feel free to source it in your `.bashrc` to permanently change the prompt:
+
+    echo 'source ~/.powerline.bash' >> ~.bashrc
 
 For best results, use [Base16
 colorscheme](http://chriskempson.github.io/base16/) with your terminal
