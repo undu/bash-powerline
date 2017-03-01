@@ -32,7 +32,7 @@ Do a cursory content of it contents to see if it's sane, and source it.
 
 After you do the test run, feel free to source it in your `.bashrc` to permanently change the prompt:
 
-    echo 'source ~/.powerline.bash' >> ~.bashrc
+    echo 'source ~/.powerline.bash' >> ~/.bashrc
 
 For best results, use [Base16
 colorscheme](http://chriskempson.github.io/base16/) with your terminal
