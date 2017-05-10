@@ -136,7 +136,7 @@ __powerline() {
   ### Prompt components
 
   __git_block() {
-    if [ ! hash git 2> /dev/null ]; then
+    if ! command -V git > /dev/null; then
       # git not found
       __block_text=''
       return
@@ -145,8 +145,7 @@ __powerline() {
     local git_eng="env LANG=C git"
 
     # check if pwd is under git
-    git rev-parse 2> /dev/null
-    if [ $? != 0 ]; then
+    if ! git rev-parse --is-inside-git-dir > /dev/null 2> /dev/null; then
       # not in a git repo, bail out
       __block_text=''
       return
@@ -267,7 +266,7 @@ __powerline() {
       text+="$BOLD$(whoami)"
     fi
     if [ ! -z ${show_host+x} ]; then
-      if [ ! -z ${text+x} ]; then
+      if [ ! -z "${text+x}" ]; then
         text+="@"
       fi
       text+="\h"
@@ -280,7 +279,7 @@ __powerline() {
 
   __status_block() {
     local text
-    if [ $exit_code != 0 ]; then
+    if [ "$exit_code" != 0 ]; then
       __prompt_block $BLACK $RED '✘'
       text+=$__block_text
     fi
