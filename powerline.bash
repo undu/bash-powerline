@@ -162,7 +162,25 @@ __powerline() {
       ref_symbol=$GIT_BRANCH_SYMBOL
     fi
 
-    ref="$ref_symbol $branch "
+    # In pcmode (and only pcmode) the contents of
+    # $gitstring are subject to expansion by the shell.
+    # Avoid putting the raw ref name in the prompt to
+    # protect the user from arbitrary code execution via
+    # specially crafted ref names (e.g., a ref named
+    # '$(IFS=_;cmd=sudo_rm_-rf_/;$cmd)' would execute
+    # 'sudo rm -rf /' when the prompt is drawn).  Instead,
+    # put the ref name in a new global variable (in the
+    # __git_ps1_* namespace to avoid colliding with the
+    # user's environment) and reference that variable from
+    # PS1.
+    # note that the $ is escaped -- the variable will be
+    # expanded later (when it's time to draw the prompt)
+    if shopt -q promptvars; then
+      export __git_ps1_block="$branch"
+      ref="$ref_symbol \${__git_ps1_block}"
+    else
+      ref="$ref_symbol $branch"
+    fi
 
     local marks
 
