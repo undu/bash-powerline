@@ -154,6 +154,7 @@ __powerline() {
     # get current branch name or short SHA1 hash for detached head
     local branch; local ref_symbol
     branch="$($git_eng symbolic-ref --short HEAD 2>/dev/null)"
+    # shellcheck disable=SC2181
     if [ $? != 0 ]; then
       branch="$($git_eng describe --tags --always 2>/dev/null)"
       ref_symbol='➦'
@@ -230,6 +231,7 @@ __powerline() {
   __pwd_block() {
     # Use ~ to represent $HOME prefix
     local pwd; pwd=$(pwd | sed -e "s|^$HOME|~|")
+    # shellcheck disable=SC1001,SC2088
     if [[ ( $pwd = ~\/*\/* || $pwd = \/*\/*/* ) && ${#pwd} -gt $MAX_PATH_LENGTH ]]; then
       local IFS='/'
       read -ra split <<< "$pwd"
@@ -257,6 +259,7 @@ __powerline() {
       bg=$RED
     fi
 
+    # shellcheck disable=SC2153
     if [[ ! -z "${SHOW_USER+x}" || (  ! -z "${DEFAULT_USER+x}" && "$DEFAULT_USER" != "$(whoami)" ) ]]; then
       local show_user="y"
     fi
@@ -305,6 +308,7 @@ __powerline() {
   prompt() {
     # I don't like bash; execute first to capture correct status code
     local exit_code=$?
+    # shellcheck disable=SC2091
     $(history -a ; history -n)
 
     last_bg=''
