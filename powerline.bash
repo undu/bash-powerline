@@ -214,15 +214,28 @@ __powerline() {
     # https://github.com/pypa/virtualenv/blob/a9b4e673559a5beb24bac1a8fb81446dd84ec6ed/virtualenv_embedded/activate.sh#L62
     # License: MIT
     if [ -n "$VIRTUAL_ENV" ]; then
-      local text
-      if [ "$(basename \""$VIRTUAL_ENV"\")" == "__" ]; then
-        # special case for Aspen magic directories
-        # see http://www.zetadev.com/software/aspen/
-        text="[$(basename \$\(dirname \""$VIRTUAL_ENV"\"\))]"
+      local venv
+      # In pcmode (and only pcmode) the contents of
+      # $gitstring are subject to expansion by the shell.
+      # Avoid putting the raw ref name in the prompt to
+      # protect the user from arbitrary code execution via
+      # specially crafted ref names (e.g., a ref named
+      # '$(IFS=_;cmd=sudo_rm_-rf_/;$cmd)' would execute
+      # 'sudo rm -rf /' when the prompt is drawn).  Instead,
+      # put the ref name in a new global variable (in the
+      # __git_ps1_* namespace to avoid colliding with the
+      # user's environment) and reference that variable from
+      # PS1.
+      # note that the $ is escaped -- the variable will be
+      # expanded later (when it's time to draw the prompt)
+      if shopt -q promptvars; then
+        export __venv_ps1_block
+        __venv_ps1_block=$(basename "$VIRTUAL_ENV")
+        venv="$ref_symbol \${__venv_ps1_block}"
       else
-        text="($(basename \""$VIRTUAL_ENV"\"))"
+        venv="$(basename "$VIRTUAL_ENV")"
       fi
-      __prompt_block $WHITE $BLACK "$text"
+      __prompt_block $WHITE $BLACK "$venv"
     else
       __block_text=''
     fi
