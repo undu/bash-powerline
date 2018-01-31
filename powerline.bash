@@ -23,6 +23,7 @@ __powerline() {
     readonly GIT_BRANCH_SYMBOL=''
   fi
   readonly GIT_BRANCH_CHANGED_SYMBOL='Δ'
+  readonly GIT_BRANCH_ADDED_SYMBOL='+'
   readonly GIT_NEED_PUSH_SYMBOL='↑'
   readonly GIT_NEED_PULL_SYMBOL='↓'
 
@@ -179,7 +180,11 @@ __powerline() {
     local marks
 
     # check if HEAD is dirty
-    if [ -n "$($git_eng status --porcelain 2>/dev/null)" ]; then
+    if ! ($git_eng diff --no-ext-diff --cached --quiet); then
+      dirty='y'
+      marks+=" $GIT_BRANCH_ADDED_SYMBOL"
+    fi
+    if ! ($git_eng diff --no-ext-diff --quiet); then
       dirty='y'
       marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
     fi
