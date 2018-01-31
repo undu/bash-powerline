@@ -131,7 +131,7 @@ __powerline() {
   ### Prompt components
 
   __git_block() {
-    if ! command -V git > /dev/null; then
+    if ! command -V git > /dev/null 2> /dev/null; then
       # git not found
       __block_text=''
       return
