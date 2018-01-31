@@ -49,23 +49,23 @@ __powerline() {
   readonly WHITE_BRIGHT=15
 
   # Font effects
-  readonly DIM="\[$(tput dim)\]"
-  readonly REVERSE="\[$(tput rev)\]"
-  readonly RESET="\[$(tput sgr0)\]"
-  readonly BOLD="\[$(tput bold)\]"
+  readonly DIM="\\[$(tput dim)\\]"
+  readonly REVERSE="\\[$(tput rev)\\]"
+  readonly RESET="\\[$(tput sgr0)\\]"
+  readonly BOLD="\\[$(tput bold)\\]"
 
   # Generate terminal colour codes
   # $1 is an int (a colour) and $2 must be 'fg' or 'bg'
   __colour() {
     case "$2" in
       'fg'*)
-        echo "\[$(tput setaf "$1")\]"
+        echo "\\[$(tput setaf "$1")\\]"
         ;;
       'bg'*)
-        echo "\[$(tput setab "$1")\]"
+        echo "\\[$(tput setab "$1")\\]"
         ;;
       *)
-        echo "\[$(tput setab "$1")\]"
+        echo "\\[$(tput setab "$1")\\]"
         ;;
     esac
   }
@@ -279,7 +279,7 @@ __powerline() {
       if [ ! -z "${text+x}" ]; then
         text+="@"
       fi
-      text+="\h"
+      text+='\h'
     fi
 
     if [ ! -z ${text+x} ]; then
