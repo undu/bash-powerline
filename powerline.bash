@@ -13,10 +13,6 @@ __powerline() {
   # Never show a default user
   # readonly DEFAULT_USER='user'
 
-  # Default background and foreground ANSI colours
-  readonly DEFAULT_BG=0
-  readonly DEFAULT_FG=7
-
   # Max length of full path
   readonly MAX_PATH_LENGTH=30
 
@@ -120,14 +116,12 @@ __powerline() {
     __block_text=''
     if [ ! -z "$last_bg" ]; then
       if [ ! -z "${POWERLINE_FONT+x}" ]; then
-        __block_text+="$(__colour $DEFAULT_BG 'bg')"
+        __block_text+="$RESET"
         __block_text+="$(__colour "$last_bg" 'fg')"
         __block_text+="$BLOCK_START$RESET"
-        __block_text+="$(__colour $DEFAULT_BG 'bg')"
-        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+        __block_text+="$RESET"
       else
-        __block_text+="$(__colour $DEFAULT_BG 'bg')"
-        __block_text+="$(__colour "$DEFAULT_FG" 'fg')"
+        __block_text+="$RESET"
       fi
     fi
     __block_text+=' '
